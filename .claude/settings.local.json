@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:/pinokio/api/Fish-Speech.git/app/env/Scripts/uv.exe\" pip:*)",
+      "Bash(uv pip:*)",
+      "Bash(pip index:*)",
+      "Bash(\"C:/pinokio/api/Fish-Speech.git/app/env/Scripts/python.exe\" -c \"from triton.compiler.compiler import triton_key; print\\(''OK:'', triton_key\\(\\)[:20]\\)\")"
+    ]
+  }
+}

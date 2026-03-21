@@ -5,22 +5,32 @@ module.exports = {
       method: "shell.run",
       params: {
         message: [
-          "git clone https://github.com/SUP3RMASS1VE/fish-speech-SUP3R app",
+          "git clone https://github.com/fishaudio/fish-speech app",
         ]
       }
     },
-    // Delete this step if your project does not use torch
+    // Install torch 2.8.0 + matching torchvision 0.23.0 for the detected GPU
+    // (torch.js installs latest torch which conflicts with fish-speech's pinned torch==2.8.0)
     {
-      method: "script.start",
+      method: "shell.run",
       params: {
-        uri: "torch.js",
-        params: {
-          venv: "env",                // Edit this to customize the venv folder path
-          path: "app",                // Edit this to customize the path to start the shell from
-          // xformers: true   // uncomment this line if your project requires xformers
-          // triton: true   // uncomment this line if your project requires triton
-          // sageattention: true   // uncomment this line if your project requires sageattention
-        }
+        venv: "env",
+        path: "app",
+        message: [
+          "uv pip install torch==2.8.0 torchaudio==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128",
+        ],
+        when: "{{gpu === 'nvidia'}}",
+      }
+    },
+    {
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: [
+          "uv pip install torch==2.8.0 torchaudio==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cpu",
+        ],
+        when: "{{gpu !== 'nvidia'}}",
       }
     },
     // Edit this step with your custom install commands
@@ -30,8 +40,8 @@ module.exports = {
         venv: "env",                // Edit this to customize the venv folder path
         path: "app",                // Edit this to customize the path to start the shell from
         message: [
-          "uv pip install gradio devicetorch",
-          "uv pip install -e ."
+          "uv pip install -e .",
+          "uv pip install triton-windows==3.3.1.post21",
         ]
       }
     },
@@ -39,8 +49,8 @@ module.exports = {
       method: "hf.download",
       params: {
         path: "app",
-        "_": [ "cocktailpeanut/oa" ],
-        "--local-dir": "./checkpoints/openaudio-s1-mini",
+        "_": [ "fishaudio/s2-pro" ],
+        "--local-dir": "./checkpoints/s2-pro",
       }
     }
   ]

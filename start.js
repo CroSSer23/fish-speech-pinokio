@@ -8,10 +8,10 @@ module.exports = {
         env: { },                   // Environment variables
         path: "app",              // Change to the tools directory
         message: [
-          "python -m tools.run_webui",    // Updated to run your script
+          "python -m tools.run_webui --llama-checkpoint-path checkpoints/s2-pro --decoder-checkpoint-path checkpoints/s2-pro/codec.pth --compile",
         ],
         on: [{
-          event: "/http:\\/\\/\\S+/",  // Regex to detect the running web UI
+          event: "/(http:\\/\\/[0-9.:]+)/",
           done: true
         }]
       }
@@ -19,7 +19,7 @@ module.exports = {
     {
       method: "local.set",
       params: {
-        url: "{{input.event[0]}}"
+        url: "{{input.event[1]}}"
       }
     }
   ]
