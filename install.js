@@ -9,8 +9,7 @@ module.exports = {
         ]
       }
     },
-    // Install torch 2.8.0 + matching torchvision 0.23.0 for the detected GPU
-    // (torch.js installs latest torch which conflicts with fish-speech's pinned torch==2.8.0)
+    // NVIDIA (Windows/Linux)
     {
       method: "shell.run",
       params: {
@@ -22,6 +21,19 @@ module.exports = {
         when: "{{gpu === 'nvidia'}}",
       }
     },
+    // Apple Silicon (Mac MPS)
+    {
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: [
+          "uv pip install torch==2.8.0 torchaudio==2.8.0 torchvision==0.23.0",
+        ],
+        when: "{{platform === 'darwin'}}",
+      }
+    },
+    // CPU fallback (Linux/Windows without NVIDIA)
     {
       method: "shell.run",
       params: {
@@ -30,19 +42,30 @@ module.exports = {
         message: [
           "uv pip install torch==2.8.0 torchaudio==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cpu",
         ],
-        when: "{{gpu !== 'nvidia'}}",
+        when: "{{gpu !== 'nvidia' && platform !== 'darwin'}}",
       }
     },
     // Edit this step with your custom install commands
     {
       method: "shell.run",
       params: {
-        venv: "env",                // Edit this to customize the venv folder path
-        path: "app",                // Edit this to customize the path to start the shell from
+        venv: "env",
+        path: "app",
         message: [
           "uv pip install -e .",
-          "uv pip install triton-windows==3.3.1.post21",
         ]
+      }
+    },
+    // Windows only: triton
+    {
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: [
+          "uv pip install triton-windows==3.3.1.post21",
+        ],
+        when: "{{platform === 'win32'}}",
       }
     },
     {
