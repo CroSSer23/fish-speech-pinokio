@@ -1,21 +1,48 @@
 module.exports = {
   daemon: true,
   run: [
+    // Detect GPU (fast, < 1s) — ensures gpu_mode.json is always current
     {
       method: "shell.run",
       params: {
-        venv: "env",                // Path to your virtual environment
-        env: { TORCHINDUCTOR_ONLINE_SOFTMAX: "0" },  // Disable inductor online-softmax (unsupported for inference split-reduction)
-        path: "app",              // Change to the tools directory
+        message: ["python detect_gpu.py"]
+      }
+    },
+    {
+      method: "json.get",
+      params: { gpu: "gpu_mode.json" }
+    },
+
+    // ══ FULL mode: standard Fish Speech (PyTorch) ════════════════════════════
+    {
+      when: "{{local.gpu.mode === 'full'}}",
+      method: "shell.run",
+      params: {
+        venv: "env",
+        env: { TORCHINDUCTOR_ONLINE_SOFTMAX: "0" },
+        path: "app",
         message: [
           "python -m tools.run_webui --llama-checkpoint-path checkpoints/s2-pro --decoder-checkpoint-path checkpoints/s2-pro/codec.pth --compile --half",
         ],
-        on: [{
-          event: "/(http:\\/\\/[0-9.:]+)/",
-          done: true
-        }]
+        on: [{ event: "/(http:\\/\\/[0-9.:]+)/", done: true }]
       }
     },
+
+    // ══ GGUF mode: s2.cpp Gradio bridge ═════════════════════════════════════
+    {
+      when: "{{local.gpu.mode === 'gguf'}}",
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: [
+          "python -m tools.s2cpp_webui --s2cpp-dir ../s2cpp",
+        ],
+        on: [{ event: "/(http:\\/\\/[0-9.:]+)/", done: true }]
+      }
+    },
+
+    // Set URL (works for both modes — input comes from whichever shell.run ran)
     {
       method: "local.set",
       params: {
