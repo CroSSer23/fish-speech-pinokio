@@ -9,7 +9,7 @@ module.exports = {
     },
     // Clone app repo (needed for the Gradio webui even in GGUF mode)
     {
-      when: "{{!exists('app')}}",
+      when: "{{!exists('app/tools/s2cpp_webui.py')}}",
       method: "shell.run",
       params: {
         message: ["git clone --depth 1 https://github.com/CroSSer23/fish-speech app"]
