@@ -5,9 +5,10 @@ module.exports = {
   description: "",
   icon: "icon.png",
   menu: async (kernel, info) => {
-    const installedFull = info.exists("app/env")
+    const installedFull = info.exists("app/env") && info.exists("app/checkpoints/s2-pro")
+    const installedFp8  = info.exists("app/env") && info.exists("app/checkpoints/s2-pro-fp8")
     const installedGguf = info.exists("s2cpp")
-    const installed = installedFull || installedGguf
+    const installed = installedFull || installedFp8 || installedGguf
 
     const running = {
       install:     info.running("install.js"),
@@ -45,7 +46,7 @@ module.exports = {
       return [{
         default: true,
         icon: "fa-solid fa-terminal",
-        text: installedGguf && !installedFull ? "Starting (GGUF)…" : "Starting…",
+        text: installedGguf && !installedFull && !installedFp8 ? "Starting (GGUF)…" : installedFp8 && !installedFull ? "Starting (FP8)…" : "Starting…",
         href: "start.js",
       }]
     }
@@ -82,10 +83,14 @@ module.exports = {
       }]
 
       // Show which mode is active
-      if (installedFull && installedGguf) {
+      const modes = []
+      if (installedFull) modes.push("Full (BF16)")
+      if (installedFp8)  modes.push("FP8 (torchao)")
+      if (installedGguf) modes.push("GGUF (s2.cpp)")
+      if (modes.length > 1) {
         menu.push({
           icon: "fa-solid fa-microchip",
-          text: "<div><strong>Modes installed</strong><div>Full (PyTorch) + GGUF (s2.cpp)</div></div>",
+          text: `<div><strong>Modes installed</strong><div>${modes.join(" + ")}</div></div>`,
           href: "start.js",
         })
       }

@@ -1,7 +1,8 @@
 """
 Detects GPU VRAM and writes gpu_mode.json to choose the right backend:
-  mode = "full"  → standard Fish Speech (PyTorch, needs ≥ 20 GB VRAM)
-  mode = "gguf"  → s2.cpp GGUF backend  (needs < 20 GB VRAM)
+  mode = "full"  → standard Fish Speech BF16    (≥ 20 GB VRAM)
+  mode = "fp8"   → torchao float8_weight_only   (12–20 GB VRAM)
+  mode = "gguf"  → s2.cpp GGUF backend          (<  12 GB VRAM)
 """
 import subprocess
 import json
@@ -29,6 +30,8 @@ vram_gb, gpu_name = detect_vram()
 
 if vram_gb >= 20:
     mode = "full"
+elif vram_gb >= 12:
+    mode = "fp8"
 elif vram_gb > 0:
     mode = "gguf"
 else:

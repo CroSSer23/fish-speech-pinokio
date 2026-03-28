@@ -28,6 +28,21 @@ module.exports = {
       }
     },
 
+    // ══ FP8 mode: Fish Speech with torchao float8 quantization ══════════════
+    {
+      when: "{{local.gpu.mode === 'fp8'}}",
+      method: "shell.run",
+      params: {
+        venv: "env",
+        env: { TORCHINDUCTOR_ONLINE_SOFTMAX: "0" },
+        path: "app",
+        message: [
+          "python -m tools.run_webui --llama-checkpoint-path checkpoints/s2-pro-fp8 --decoder-checkpoint-path checkpoints/s2-pro/codec.pth --fp8 --half",
+        ],
+        on: [{ event: "/(http:\\/\\/[0-9.:]+)/", done: true }]
+      }
+    },
+
     // ══ GGUF mode: s2.cpp Gradio bridge ═════════════════════════════════════
     {
       when: "{{local.gpu.mode === 'gguf'}}",

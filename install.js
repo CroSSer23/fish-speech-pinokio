@@ -84,7 +84,78 @@ module.exports = {
       }
     },
 
-    // ══ GGUF mode (< 20 GB VRAM): s2.cpp + quantized model ══════════════════
+    // ══ FP8 mode (12–20 GB VRAM): Fish Speech + torchao float8 ══════════════
+
+    // Clone app repo
+    {
+      when: "{{local.gpu.mode === 'fp8' && !exists('app')}}",
+      method: "shell.run",
+      params: {
+        message: ["git clone https://github.com/CroSSer23/fish-speech app"]
+      }
+    },
+    // PyTorch — NVIDIA
+    {
+      when: "{{local.gpu.mode === 'fp8' && gpu === 'nvidia'}}",
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: ["uv pip install torch==2.8.0 torchaudio==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128"]
+      }
+    },
+    // fish_speech package
+    {
+      when: "{{local.gpu.mode === 'fp8'}}",
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: ["uv pip install -e ."]
+      }
+    },
+    // torchao for FP8 quantization
+    {
+      when: "{{local.gpu.mode === 'fp8'}}",
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: ["uv pip install torchao"]
+      }
+    },
+    // triton-windows
+    {
+      when: "{{local.gpu.mode === 'fp8' && platform === 'win32'}}",
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: ["uv pip install triton-windows==3.3.1.post21"]
+      }
+    },
+    // Download FP8 LLM checkpoint
+    {
+      when: "{{local.gpu.mode === 'fp8'}}",
+      method: "hf.download",
+      params: {
+        path: "app",
+        "_": ["drbaph/s2-pro-fp8"],
+        "--local-dir": "./checkpoints/s2-pro-fp8"
+      }
+    },
+    // Download codec from full s2-pro (shared decoder)
+    {
+      when: "{{local.gpu.mode === 'fp8' && !exists('app/checkpoints/s2-pro/codec.pth')}}",
+      method: "hf.download",
+      params: {
+        path: "app",
+        "_": ["fishaudio/s2-pro", "codec.pth"],
+        "--local-dir": "./checkpoints/s2-pro"
+      }
+    },
+
+    // ══ GGUF mode (< 12 GB VRAM): s2.cpp + quantized model ══════════════════
 
     {
       when: "{{local.gpu.mode === 'gguf'}}",
