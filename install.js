@@ -53,6 +53,14 @@ module.exports = {
         message: ["uv pip install torch==2.8.0 torchaudio==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cpu"]
       }
     },
+    // portaudio C library (needed to compile pyaudio on Linux/Mac)
+    {
+      when: "{{local.gpu.mode === 'full' && platform !== 'win32'}}",
+      method: "shell.run",
+      params: {
+        message: ["conda install -c conda-forge portaudio -y"]
+      }
+    },
     // fish_speech package
     {
       when: "{{local.gpu.mode === 'full'}}",
@@ -102,6 +110,14 @@ module.exports = {
         venv: "env",
         path: "app",
         message: ["uv pip install torch==2.8.0 torchaudio==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128"]
+      }
+    },
+    // portaudio C library (needed to compile pyaudio on Linux/Mac)
+    {
+      when: "{{local.gpu.mode === 'fp8' && platform !== 'win32'}}",
+      method: "shell.run",
+      params: {
+        message: ["conda install -c conda-forge portaudio -y"]
       }
     },
     // fish_speech package
