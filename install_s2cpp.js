@@ -40,9 +40,9 @@ module.exports = {
         message: ["conda install -c conda-forge cuda-toolkit -y"]
       }
     },
-    // Clone s2.cpp (with submodules)
+    // Clone s2.cpp (with submodules) — check CMakeLists.txt so a partial/empty dir triggers re-clone
     {
-      when: "{{!exists('s2cpp')}}",
+      when: "{{!exists('s2cpp/CMakeLists.txt')}}",
       method: "shell.run",
       params: {
         message: ["git clone --recurse-submodules https://github.com/rodrigomatta/s2.cpp.git s2cpp"]
