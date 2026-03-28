@@ -19,7 +19,7 @@ module.exports = {
       method: "shell.run",
       params: {
         venv: "env",
-        env: { TORCHINDUCTOR_ONLINE_SOFTMAX: "0" },
+        env: { TORCHINDUCTOR_ONLINE_SOFTMAX: "0", PYTHONWARNINGS: "ignore::UserWarning" },
         path: "app",
         message: [
           "python -m tools.run_webui --llama-checkpoint-path checkpoints/s2-pro --decoder-checkpoint-path checkpoints/s2-pro/codec.pth --compile --half",
@@ -34,7 +34,7 @@ module.exports = {
       method: "shell.run",
       params: {
         venv: "env",
-        env: { TORCHINDUCTOR_ONLINE_SOFTMAX: "0" },
+        env: { TORCHINDUCTOR_ONLINE_SOFTMAX: "0", PYTHONWARNINGS: "ignore::UserWarning" },
         path: "app",
         message: [
           "python -m tools.run_webui --llama-checkpoint-path checkpoints/s2-pro-fp8 --decoder-checkpoint-path checkpoints/s2-pro/codec.pth --fp8 --half",
