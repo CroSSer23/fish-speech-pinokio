@@ -7,6 +7,14 @@ module.exports = {
       method: "json.get",
       params: { gpu: "gpu_mode.json" }
     },
+    // Clone app repo (needed for the Gradio webui even in GGUF mode)
+    {
+      when: "{{!exists('app')}}",
+      method: "shell.run",
+      params: {
+        message: ["git clone --depth 1 https://github.com/CroSSer23/fish-speech app"]
+      }
+    },
     // Install cmake via conda
     {
       method: "shell.run",
