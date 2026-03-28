@@ -55,6 +55,7 @@ module.exports = {
       params: {
         path: "s2cpp",
         message: [
+          "if exist build rmdir /s /q build",
           "cmake -B build -DCMAKE_BUILD_TYPE=Release -DS2_CUDA=ON -G \"Visual Studio 17 2022\" -A x64",
           "cmake --build build --config Release",
         ]
