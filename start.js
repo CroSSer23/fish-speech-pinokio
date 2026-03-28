@@ -34,9 +34,8 @@ module.exports = {
       method: "shell.run",
       params: {
         venv: "env",
-        path: "app",
         message: [
-          "python -m tools.s2cpp_webui --s2cpp-dir ../s2cpp",
+          "python app/tools/s2cpp_webui.py --s2cpp-dir s2cpp",
         ],
         on: [{ event: "/(http:\\/\\/[0-9.:]+)/", done: true }]
       }
