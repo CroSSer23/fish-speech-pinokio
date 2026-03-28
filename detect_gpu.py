@@ -30,7 +30,7 @@ vram_gb, gpu_name = detect_vram()
 
 if vram_gb >= 20:
     mode = "full"
-elif vram_gb >= 12:
+elif vram_gb >= 11.5:
     mode = "fp8"
 elif vram_gb > 0:
     mode = "gguf"

@@ -28,7 +28,7 @@ module.exports = {
       method: "shell.run",
       params: {
         message: [
-          "winget install --id Microsoft.VisualStudio.2022.BuildTools -e --silent --override \"--quiet --wait --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64\" --accept-source-agreements --accept-package-agreements"
+          "curl -L -o \"%TEMP%\\vs_buildtools.exe\" \"https://aka.ms/vs/17/release/vs_buildtools.exe\" && \"%TEMP%\\vs_buildtools.exe\" --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --wait --norestart --quiet"
         ]
       }
     },
@@ -56,6 +56,7 @@ module.exports = {
         path: "s2cpp",
         message: [
           "if exist build rmdir /s /q build",
+          "call \"C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat\" x64",
           "cmake -B build -DCMAKE_BUILD_TYPE=Release -DS2_CUDA=ON -G \"Visual Studio 17 2022\" -A x64",
           "cmake --build build --config Release",
         ]
