@@ -48,14 +48,14 @@ module.exports = {
         message: ["git clone --recurse-submodules https://github.com/rodrigomatta/s2.cpp.git s2cpp"]
       }
     },
-    // Build CUDA — Windows NVIDIA (CMake auto-detects installed VS Build Tools)
+    // Build CUDA — Windows NVIDIA (explicit VS 2022 generator overrides conda's VS 2019 default)
     {
       when: "{{gpu === 'nvidia' && platform === 'win32'}}",
       method: "shell.run",
       params: {
         path: "s2cpp",
         message: [
-          "cmake -B build -DCMAKE_BUILD_TYPE=Release -DS2_CUDA=ON",
+          "cmake -B build -DCMAKE_BUILD_TYPE=Release -DS2_CUDA=ON -G \"Visual Studio 17 2022\" -A x64",
           "cmake --build build --config Release",
         ]
       }
