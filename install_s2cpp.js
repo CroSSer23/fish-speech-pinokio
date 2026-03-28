@@ -22,13 +22,22 @@ module.exports = {
         message: ["conda install -c conda-forge cmake ninja -y"]
       }
     },
-    // Install MinGW toolchain on Windows (MSVC is not auto-installable;
-    // CUDA on Windows requires MSVC, so Windows always gets a CPU build via MinGW)
+    // Windows + NVIDIA: install MSVC Build Tools (required for CUDA compilation)
     {
-      when: "{{platform === 'win32'}}",
+      when: "{{gpu === 'nvidia' && platform === 'win32'}}",
       method: "shell.run",
       params: {
-        message: ["conda install -c conda-forge m2w64-toolchain -y"]
+        message: [
+          "winget install --id Microsoft.VisualStudio.2022.BuildTools -e --silent --override \"--quiet --wait --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64\" --accept-source-agreements --accept-package-agreements"
+        ]
+      }
+    },
+    // Windows + NVIDIA: install CUDA toolkit via conda (provides nvcc)
+    {
+      when: "{{gpu === 'nvidia' && platform === 'win32'}}",
+      method: "shell.run",
+      params: {
+        message: ["conda install -c conda-forge cuda-toolkit -y"]
       }
     },
     // Clone s2.cpp (with submodules)
@@ -39,7 +48,19 @@ module.exports = {
         message: ["git clone --recurse-submodules https://github.com/rodrigomatta/s2.cpp.git s2cpp"]
       }
     },
-    // Build with CUDA — Linux/Mac NVIDIA only (CUDA on Windows requires MSVC)
+    // Build CUDA — Windows NVIDIA (CMake auto-detects installed VS Build Tools)
+    {
+      when: "{{gpu === 'nvidia' && platform === 'win32'}}",
+      method: "shell.run",
+      params: {
+        path: "s2cpp",
+        message: [
+          "cmake -B build -DCMAKE_BUILD_TYPE=Release -DS2_CUDA=ON",
+          "cmake --build build --config Release",
+        ]
+      }
+    },
+    // Build CUDA — Linux/Mac NVIDIA
     {
       when: "{{gpu === 'nvidia' && platform !== 'win32'}}",
       method: "shell.run",
@@ -51,19 +72,7 @@ module.exports = {
         ]
       }
     },
-    // Build CPU — Windows NVIDIA (MinGW, no CUDA; GGUF quantization runs fast enough on CPU)
-    {
-      when: "{{gpu === 'nvidia' && platform === 'win32'}}",
-      method: "shell.run",
-      params: {
-        path: "s2cpp",
-        message: [
-          "cmake -B build -DCMAKE_BUILD_TYPE=Release -G \"MinGW Makefiles\"",
-          "cmake --build build --config Release",
-        ]
-      }
-    },
-    // Build CPU — non-NVIDIA on Linux/Mac
+    // Build CPU — non-NVIDIA Linux/Mac
     {
       when: "{{gpu !== 'nvidia' && platform !== 'win32'}}",
       method: "shell.run",
@@ -75,7 +84,14 @@ module.exports = {
         ]
       }
     },
-    // Build CPU — non-NVIDIA on Windows (MinGW)
+    // Build CPU — non-NVIDIA Windows (MinGW)
+    {
+      when: "{{gpu !== 'nvidia' && platform === 'win32'}}",
+      method: "shell.run",
+      params: {
+        message: ["conda install -c conda-forge m2w64-toolchain -y"]
+      }
+    },
     {
       when: "{{gpu !== 'nvidia' && platform === 'win32'}}",
       method: "shell.run",
